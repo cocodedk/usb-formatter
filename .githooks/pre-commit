@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+# Smoke check: shellcheck + bash syntax
+if ! command -v shellcheck >/dev/null 2>&1; then
+  echo "pre-commit: shellcheck not installed; install with: sudo apt-get install -y shellcheck" >&2
+  exit 1
+fi
+
+shellcheck format-usb.sh
+bash -n format-usb.sh

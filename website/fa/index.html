@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+SEO keywords:
+  primary: فرمت usb لینوکس
+  secondary: فرمت NTFS لینوکس, پاک کردن فلش بوتیبل اوبونتو, exFAT لینوکس
+  intent: راهنما/ابزار - کاربر فلش را برای نصب لینوکس استفاده کرده و حالا می‌خواهد روی ویندوز قابل خواندن باشد
+-->
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فرمت فلش USB در لینوکس: NTFS یا exFAT - usb-formatter</title>
+<meta name="description" content="اسکریپت Bash برای پاک کردن و فرمت کردن فلش USB در لینوکس به صورت NTFS یا exFAT. بررسی removable، حالت dry-run، آن‌مونت با udisksctl و تشخیص خودکار خطا.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://cocodedk.github.io/usb-formatter/fa/">
+
+<link rel="alternate" hreflang="en" href="https://cocodedk.github.io/usb-formatter/">
+<link rel="alternate" hreflang="fa" href="https://cocodedk.github.io/usb-formatter/fa/">
+<link rel="alternate" hreflang="x-default" href="https://cocodedk.github.io/usb-formatter/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="usb-formatter">
+<meta property="og:title" content="فرمت فلش USB در لینوکس: NTFS یا exFAT - usb-formatter">
+<meta property="og:description" content="اسکریپت Bash برای پاک کردن و فرمت کردن فلش USB در لینوکس به صورت NTFS یا exFAT. با محافظ‌های ایمنی و حالت پیش‌نمایش.">
+<meta property="og:url" content="https://cocodedk.github.io/usb-formatter/fa/">
+<meta property="og:image" content="https://cocodedk.github.io/usb-formatter/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="usb-formatter - ابزار Bash برای فرمت فلش در لینوکس">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:locale:alternate" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="فرمت فلش USB در لینوکس: NTFS یا exFAT - usb-formatter">
+<meta name="twitter:description" content="اسکریپت Bash برای پاک کردن و فرمت کردن فلش USB در لینوکس. با بررسی ایمنی و تشخیص خودکار خطا.">
+<meta name="twitter:image" content="https://cocodedk.github.io/usb-formatter/og.png">
+<meta name="twitter:image:alt" content="usb-formatter - ابزار Bash برای فرمت فلش در لینوکس">
+
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "usb-formatter",
+  "description": "اسکریپت Bash برای پاک کردن و فرمت کردن فلش USB در لینوکس به صورت NTFS یا exFAT، با محافظ‌های ایمنی در برابر دیسک سیستم و حالت dry-run.",
+  "url": "https://cocodedk.github.io/usb-formatter/fa/",
+  "downloadUrl": "https://github.com/cocodedk/usb-formatter",
+  "codeRepository": "https://github.com/cocodedk/usb-formatter",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Linux",
+  "inLanguage": "fa",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": {
+    "@type": "Person",
+    "name": "بابک بندپی",
+    "url": "https://cocode.dk",
+    "sameAs": [
+      "https://linkedin.com/in/babakbandpey",
+      "https://github.com/cocodedk"
+    ]
+  }
+}
+</script>
+</head>
+<body>
+<div class="shell">
+
+<nav class="topbar" aria-label="ناوبری اصلی">
+    <a class="brand" href="./" aria-label="صفحه اصلی usb-formatter">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect width="64" height="64" rx="8" fill="#0B0D0E"/>
+            <path d="M14 14 H22 V20 H20 V44 H22 V50 H14 Z" fill="#F4F1EA"/>
+            <path d="M50 14 H42 V20 H44 V44 H42 V50 H50 Z" fill="#F4F1EA"/>
+            <rect x="26" y="22" width="12" height="20" fill="#F4F1EA"/>
+            <rect x="29" y="42" width="6" height="6" fill="#D97706"/>
+            <rect x="28" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="34" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="28" y="33" width="8" height="2" fill="#0B0D0E"/>
+        </svg>
+        <span class="ltr">usb-formatter<span class="pill">v1</span></span>
+    </a>
+    <a href="../" class="lang-switch" hreflang="en" lang="en">English</a>
+</nav>
+
+<header class="intro">
+    <h1><span class="prompt">$</span> <span class="ltr">usb-formatter</span></h1>
+    <p class="lede">یک اسکریپت کوچک Bash که فلش USB را پاک می‌کند و آن را به صورت NTFS (پیش‌فرض) یا exFAT فرمت می‌کند، تا بعد از این که با mkusb برای نصب اوبونتو استفاده‌اش کردید، دوباره روی ویندوز خوانده شود. به هر چیزی که شبیه دیسک سیستم باشد دست نمی‌زند.</p>
+    <div class="hazard-stripe" role="presentation"></div>
+</header>
+
+<section id="what">
+    <h2>چه می‌کند</h2>
+    <p>یک اجرا، پنج مرحله. اول <code>wipefs</code> امضاهای قدیمی را پاک می‌کند، بعد <code>sgdisk</code> یک GPT تازه با یک پارتیشن کامل می‌سازد، و در پایان <code>mkfs.ntfs</code> یا <code>mkfs.exfat</code> فایل‌سیستم را روی پارتیشن می‌نشاند. پیش از همه‌ی این‌ها، تمام پارتیشن‌های فلش از طریق <code>udisksctl</code> آن‌مونت می‌شوند تا udisks2 وسط کار دوباره مونتش نکند.</p>
+    <p>اگر مرحله‌ی wipe به این دلیل که چیزی فلش را در دست گرفته شکست بخورد، اسکریپت خودش دستورهای تشخیص (<code>lsblk</code>، <code>mount</code>، <code>fuser</code>، <code>pvs</code>، <code>lvs</code>) را اجرا می‌کند و قبل از خروج نشان می‌دهد چه چیزی مزاحم است.</p>
+</section>
+
+<section id="install">
+    <h2>نصب و اجرا</h2>
+    <p>اسکریپت را بگیرید، اجرایی‌اش کنید، اول پیش‌نمایش بگیرید، بعد اجرا کنید:</p>
+<pre><code>curl -O https://raw.githubusercontent.com/cocodedk/usb-formatter/main/format-usb.sh
+chmod +x format-usb.sh
+./format-usb.sh /dev/sdX KINGSTON --dry-run
+sudo ./format-usb.sh /dev/sdX KINGSTON</code></pre>
+    <div class="callout">
+        <strong>نکته</strong><br>
+        همیشه اول با <code>--dry-run</code> اجرا کنید. به sudo نیاز ندارد و تمام فرمان‌هایی را که قرار است اجرا کند چاپ می‌کند تا قبل از تحویل به sudo، مطمئن شوید دستگاه درست انتخاب شده.
+    </div>
+</section>
+
+<section id="flags">
+    <h2>گزینه‌ها</h2>
+    <table class="flags">
+        <thead><tr><th>گزینه</th><th>عملکرد</th></tr></thead>
+        <tbody>
+            <tr><td>--ntfs</td><td>فرمت NTFS. پیش‌فرض است. روی ویندوز بدون نصب چیزی خوانده می‌شود.</td></tr>
+            <tr><td>--exfat</td><td>فرمت exFAT. برای فایل‌های بزرگ‌تر از ۴ گیگابایت روی دوربین و تلویزیون مناسب‌تر است.</td></tr>
+            <tr><td>-n, --dry-run</td><td>هر مرحله را بدون تغییر چیزی چاپ می‌کند. به root نیاز ندارد.</td></tr>
+            <tr><td>-d, --diagnose</td><td>فقط دستگاه را بررسی می‌کند — مونت‌ها، holderها، LVM. وقتی اجرای قبلی busy داده.</td></tr>
+            <tr><td>-h, --help</td><td>راهنما را چاپ می‌کند و خارج می‌شود.</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="safety">
+    <h2>محافظ‌های ایمنی</h2>
+    <dl class="guards">
+        <div>
+            <dt>فقط removable</dt>
+            <dd>مقدار <code>/sys/block/&lt;dev&gt;/removable</code> خوانده می‌شود. اگر ۱ نباشد، اسکریپت اجرا نمی‌شود. SSD داخلی و NVMe هرگز از این بررسی رد نمی‌شوند.</dd>
+        </div>
+        <div>
+            <dt>رد کردن mountpoint سیستم</dt>
+            <dd>اگر هر پارتیشن از این دستگاه روی <code>/</code>، <code>/home</code> یا <code>/boot</code> مونت باشد، اجرا قبل از هر تغییری متوقف می‌شود.</dd>
+        </div>
+        <div>
+            <dt>رد کردن swap فعال</dt>
+            <dd>اگر یک پارتیشن در حال حاضر به عنوان swap استفاده می‌شود (<code>swapon --show</code>)، اسکریپت آن را پاک نمی‌کند.</dd>
+        </div>
+        <div>
+            <dt>آن‌مونت تعاملی</dt>
+            <dd>آن‌مونت اول از طریق <code>udisksctl unmount --no-user-interaction</code>، بعد <code>umount</code>، و در نهایت <code>umount -l</code> به صورت lazy. به udisks2 گفته می‌شود دوباره مونت نکند.</dd>
+        </div>
+        <div>
+            <dt>تشخیص خودکار در صورت خطا</dt>
+            <dd>اگر <code>wipefs</code> شکست بخورد، بلاک تشخیص به صورت خودکار اجرا می‌شود و holderها، مونت‌ها و وضعیت LVM را قبل از خروج چاپ می‌کند.</dd>
+        </div>
+        <div>
+            <dt>تأیید با YES</dt>
+            <dd>در حالت زنده باید دقیقاً رشته‌ی <code>YES</code> را تایپ کنید تا ادامه پیدا کند. <code>--dry-run</code> از این مرحله رد می‌شود و چیزی تغییر نمی‌دهد.</dd>
+        </div>
+    </dl>
+    <div class="callout hazard">
+        <strong>هشدار</strong><br>
+        این اسکریپت داده‌ها را نابود می‌کند. هیچ چیزی از دستگاه هدف بازنمی‌گردد. خروجی dry-run را بخوانید، دوباره بخوانید، بعد اجرا کنید.
+    </div>
+</section>
+
+<section id="diagnose">
+    <h2>وقتی چیزی درست نیست</h2>
+    <p>متداول‌ترین خطا "device busy" است — یک فایل‌منیجر همان لحظه که فلش را زده‌اید پارتیشنش را باز کرده. برای دیدن این که چه چیزی در دست گرفته، تشخیص را اجرا کنید:</p>
+<pre><code>sudo ./format-usb.sh /dev/sdX --diagnose</code></pre>
+    <p>یک درخت <code>lsblk</code>، تمام مونت‌های زنده، خروجی <code>fuser -v</code> روی هر گره‌ی پارتیشن، و تصویر LVM از <code>pvs</code> و <code>lvs</code> را می‌بینید. فایل‌منیجر را ببندید (یا holder را kill کنید)، فلش را بکشید بیرون و دوباره بزنید، و یک بار دیگر امتحان کنید.</p>
+</section>
+
+<footer class="foot">
+    Apache-2.0 | &copy; ۱۴۰۵ <a href="https://cocode.dk" target="_blank" rel="noreferrer">Cocode</a> | ساخته شده توسط <a href="https://linkedin.com/in/babakbandpey" target="_blank" rel="noreferrer">بابک بندپی</a>
+</footer>
+
+</div>
+</body>
+</html>

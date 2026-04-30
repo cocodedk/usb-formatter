@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+.idea/
+.vscode/
+*~
+
+# Environment
+.env
+.env.local
+
+# Build / artifacts (none for this project, but reserved)
+/dist/
+/build/
+
+# Pages local builds
+website/og.png.tmp
+
+# Logs
+*.log

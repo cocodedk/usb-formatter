@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<!--
+SEO keywords:
+  primary: format usb linux
+  secondary: ntfs usb linux, exfat usb linux, wipe bootable usb ubuntu
+  intent: tutorial / utility download — user just used a USB as a Linux installer and wants it back as a Windows-readable stick
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Format USB on Linux: NTFS or exFAT - usb-formatter</title>
+<meta name="description" content="Bash script to wipe and reformat a USB stick on Linux as NTFS or exFAT. Removable-only checks, dry-run preview, udisksctl unmount, auto-diagnose on failure.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://cocodedk.github.io/usb-formatter/">
+
+<link rel="alternate" hreflang="en" href="https://cocodedk.github.io/usb-formatter/">
+<link rel="alternate" hreflang="fa" href="https://cocodedk.github.io/usb-formatter/fa/">
+<link rel="alternate" hreflang="x-default" href="https://cocodedk.github.io/usb-formatter/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="usb-formatter">
+<meta property="og:title" content="Format USB on Linux: NTFS or exFAT - usb-formatter">
+<meta property="og:description" content="Bash script to wipe and reformat a USB stick on Linux as NTFS or exFAT. Removable-only checks, dry-run preview, udisksctl unmount, auto-diagnose on failure.">
+<meta property="og:url" content="https://cocodedk.github.io/usb-formatter/">
+<meta property="og:image" content="https://cocodedk.github.io/usb-formatter/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="usb-formatter - Bash utility to reformat USB drives on Linux">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="fa_IR">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Format USB on Linux: NTFS or exFAT - usb-formatter">
+<meta name="twitter:description" content="Bash script to wipe and reformat a USB stick on Linux. Safety-checked, dry-run capable, auto-diagnoses busy devices.">
+<meta name="twitter:image" content="https://cocodedk.github.io/usb-formatter/og.png">
+<meta name="twitter:image:alt" content="usb-formatter - Bash utility to reformat USB drives on Linux">
+
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "usb-formatter",
+  "description": "Bash script to wipe and reformat a USB stick on Linux as NTFS or exFAT, with safety guards against system disks and a dry-run mode.",
+  "url": "https://cocodedk.github.io/usb-formatter/",
+  "downloadUrl": "https://github.com/cocodedk/usb-formatter",
+  "codeRepository": "https://github.com/cocodedk/usb-formatter",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Linux",
+  "inLanguage": "en",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": {
+    "@type": "Person",
+    "name": "Babak Bandpey",
+    "url": "https://cocode.dk",
+    "sameAs": [
+      "https://linkedin.com/in/babakbandpey",
+      "https://github.com/cocodedk"
+    ]
+  }
+}
+</script>
+</head>
+<body>
+<div class="shell">
+
+<nav class="topbar" aria-label="primary">
+    <a class="brand" href="./" aria-label="usb-formatter home">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect width="64" height="64" rx="8" fill="#0B0D0E"/>
+            <path d="M14 14 H22 V20 H20 V44 H22 V50 H14 Z" fill="#F4F1EA"/>
+            <path d="M50 14 H42 V20 H44 V44 H42 V50 H50 Z" fill="#F4F1EA"/>
+            <rect x="26" y="22" width="12" height="20" fill="#F4F1EA"/>
+            <rect x="29" y="42" width="6" height="6" fill="#D97706"/>
+            <rect x="28" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="34" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="28" y="33" width="8" height="2" fill="#0B0D0E"/>
+        </svg>
+        <span>usb-formatter<span class="pill">v1</span></span>
+    </a>
+    <a href="fa/" class="lang-switch" hreflang="fa" lang="fa">فارسی</a>
+</nav>
+
+<header class="intro">
+    <h1><span class="prompt">$</span> usb-formatter</h1>
+    <p class="lede">A small Bash script that wipes a USB stick and reformats it as NTFS (default) or exFAT, so Windows can read it after Ubuntu mkusb chewed it up. It refuses to touch anything that looks like a system disk.</p>
+    <div class="hazard-stripe" role="presentation"></div>
+</header>
+
+<section id="what">
+    <h2>what it does</h2>
+    <p>One pass, five steps. <code>wipefs</code> clears the old signatures, <code>sgdisk</code> writes a fresh GPT with a single full-size partition, then <code>mkfs.ntfs</code> or <code>mkfs.exfat</code> lays down the filesystem. Before any of that, every partition on the device is unmounted through <code>udisksctl</code> so udisks2 does not auto-remount mid-format.</p>
+    <p>If the wipe fails because something is still holding the device, the script runs its own diagnostic (<code>lsblk</code>, <code>mount</code>, <code>fuser</code>, <code>pvs</code>, <code>lvs</code>) and prints what is in the way before bailing out.</p>
+</section>
+
+<section id="install">
+    <h2>install &amp; run</h2>
+    <p>Pull the script, mark it executable, preview the run, then commit:</p>
+<pre><code>curl -O https://raw.githubusercontent.com/cocodedk/usb-formatter/main/format-usb.sh
+chmod +x format-usb.sh
+./format-usb.sh /dev/sdX KINGSTON --dry-run
+sudo ./format-usb.sh /dev/sdX KINGSTON</code></pre>
+    <div class="callout">
+        <strong>Tip</strong><br>
+        Always run with <code>--dry-run</code> first. It does not need root and prints every command it would execute, so you can confirm the right device before handing it sudo.
+    </div>
+</section>
+
+<section id="flags">
+    <h2>flags</h2>
+    <table class="flags">
+        <thead><tr><th>flag</th><th>effect</th></tr></thead>
+        <tbody>
+            <tr><td>--ntfs</td><td>Format as NTFS. Default. Reads on Windows out of the box.</td></tr>
+            <tr><td>--exfat</td><td>Format as exFAT instead. Better for files over 4 GB on cameras and TVs.</td></tr>
+            <tr><td>-n, --dry-run</td><td>Print every step without changing anything. No root needed.</td></tr>
+            <tr><td>-d, --diagnose</td><td>Inspect the device only — mounts, holders, LVM. Use when a previous run failed busy.</td></tr>
+            <tr><td>-h, --help</td><td>Print usage and exit.</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="safety">
+    <h2>safety guards</h2>
+    <dl class="guards">
+        <div>
+            <dt>removable-only</dt>
+            <dd>Reads <code>/sys/block/&lt;dev&gt;/removable</code>. If it is not 1, the script refuses. Internal SSDs and NVMe drives never pass this check.</dd>
+        </div>
+        <div>
+            <dt>system mountpoint refusal</dt>
+            <dd>If any partition on the device is mounted at <code>/</code>, <code>/home</code>, or <code>/boot</code>, the run aborts before anything is touched.</dd>
+        </div>
+        <div>
+            <dt>active swap refusal</dt>
+            <dd>If a partition is currently in use as swap (<code>swapon --show</code>), the script will not wipe it.</dd>
+        </div>
+        <div>
+            <dt>cooperative unmount</dt>
+            <dd>Unmount goes through <code>udisksctl unmount --no-user-interaction</code>, then falls back to <code>umount</code> and finally lazy <code>umount -l</code>. udisks2 is told not to remount.</dd>
+        </div>
+        <div>
+            <dt>auto-diagnose on failure</dt>
+            <dd>If <code>wipefs</code> fails, the diagnostic block runs automatically and prints holders, mounts, and LVM state before the script exits.</dd>
+        </div>
+        <div>
+            <dt>YES confirmation</dt>
+            <dd>In live mode you must type the literal string <code>YES</code> to proceed. <code>--dry-run</code> skips this and changes nothing.</dd>
+        </div>
+    </dl>
+    <div class="callout hazard">
+        <strong>Warning</strong><br>
+        This script destroys data. It cannot recover anything from the target device. Read the dry-run output, then read it again, then run it.
+    </div>
+</section>
+
+<section id="diagnose">
+    <h2>when something goes wrong</h2>
+    <p>The most common failure is "device busy" — a file manager opened a partition the moment you plugged the stick in. Run the diagnostic to see the holder:</p>
+<pre><code>sudo ./format-usb.sh /dev/sdX --diagnose</code></pre>
+    <p>You get an <code>lsblk</code> tree, all live mount entries, the output of <code>fuser -v</code> on every partition node, and the LVM picture from <code>pvs</code> and <code>lvs</code>. Close the file manager (or kill the holder), unplug, replug, retry.</p>
+</section>
+
+<footer class="foot">
+    Apache-2.0 | &copy; 2026 <a href="https://cocode.dk" target="_blank" rel="noreferrer">Cocode</a> | Created by <a href="https://linkedin.com/in/babakbandpey" target="_blank" rel="noreferrer">Babak Bandpey</a>
+</footer>
+
+</div>
+</body>
+</html>

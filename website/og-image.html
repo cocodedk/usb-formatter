@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>og-image</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1200px; height: 630px; overflow: hidden; }
+    body {
+        font-family: "IBM Plex Sans", sans-serif;
+        background: #F4F1EA;
+        background-image:
+            linear-gradient(#DCD5C2 1px, transparent 1px);
+        background-size: 100% 36px;
+        color: #0B0D0E;
+        padding: 64px 72px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .stripe {
+        position: absolute;
+        left: 0; right: 0; top: 220px;
+        height: 8px;
+        background: repeating-linear-gradient(
+            45deg,
+            #D97706 0 14px,
+            #0B0D0E 14px 28px
+        );
+    }
+    .top {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 28px;
+    }
+    .top svg { width: 56px; height: 56px; }
+    .pill {
+        font-size: 18px;
+        font-weight: 500;
+        padding: 4px 10px;
+        border: 1px solid #DCD5C2;
+        background: #EAE5D8;
+        color: #6B7075;
+    }
+    h1 {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 96px;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin-top: 60px;
+    }
+    h1 .prompt { color: #D97706; }
+    .lede {
+        margin-top: 28px;
+        font-size: 30px;
+        line-height: 1.35;
+        color: #3A4046;
+        max-width: 940px;
+    }
+    .meta {
+        display: flex;
+        gap: 32px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 20px;
+        color: #6B7075;
+    }
+    .meta span::before { content: "▌ "; color: #D97706; }
+</style>
+</head>
+<body>
+    <div class="stripe"></div>
+    <div class="top">
+        <svg viewBox="0 0 64 64">
+            <rect width="64" height="64" rx="8" fill="#0B0D0E"/>
+            <path d="M14 14 H22 V20 H20 V44 H22 V50 H14 Z" fill="#F4F1EA"/>
+            <path d="M50 14 H42 V20 H44 V44 H42 V50 H50 Z" fill="#F4F1EA"/>
+            <rect x="26" y="22" width="12" height="20" fill="#F4F1EA"/>
+            <rect x="29" y="42" width="6" height="6" fill="#D97706"/>
+            <rect x="28" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="34" y="26" width="2" height="4" fill="#0B0D0E"/>
+            <rect x="28" y="33" width="8" height="2" fill="#0B0D0E"/>
+        </svg>
+        <span>usb-formatter</span>
+        <span class="pill">v1</span>
+    </div>
+
+    <div>
+        <h1><span class="prompt">$</span> format usb<br>on linux.</h1>
+        <p class="lede">A small Bash script. Wipes a USB stick and reformats it as NTFS or exFAT. Refuses system disks. Auto-diagnoses busy devices.</p>
+    </div>
+
+    <div class="meta">
+        <span>NTFS / exFAT</span>
+        <span>--dry-run</span>
+        <span>udisksctl unmount</span>
+        <span>cocodedk/usb-formatter</span>
+    </div>
+</body>
+</html>

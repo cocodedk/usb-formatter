@@ -1,0 +1,21 @@
+# usb-formatter
+
+> A Linux Bash utility that wipes and reformats a USB stick for Windows (NTFS, default) or exFAT. Built for the common case of reclaiming a USB stick after using it as a bootable Ubuntu installer.
+
+The tool refuses any non-removable device, refuses if a system mountpoint or active swap is on it, and requires the user to type YES to confirm. It uses udisksctl for cooperative unmount so udisks2 doesn't auto-remount mid-format. Includes a --dry-run preview and a --diagnose mode that runs lsblk / mount / fuser / pvs / lvs.
+
+## Usage
+
+- [README](https://github.com/cocodedk/usb-formatter/blob/main/README.md): Install, usage, requirements, safety
+- [format-usb.sh](https://github.com/cocodedk/usb-formatter/blob/main/format-usb.sh): The tool itself (single file)
+
+## Docs
+
+- [Website (English)](https://cocodedk.github.io/usb-formatter/)
+- [Website (Persian)](https://cocodedk.github.io/usb-formatter/fa/)
+- [CONTRIBUTING](https://github.com/cocodedk/usb-formatter/blob/main/CONTRIBUTING.md): Local setup, hooks, commit conventions
+- [SECURITY](https://github.com/cocodedk/usb-formatter/blob/main/SECURITY.md): Vulnerability reporting
+
+## Optional
+
+- [LICENSE](https://github.com/cocodedk/usb-formatter/blob/main/LICENSE): Apache-2.0
