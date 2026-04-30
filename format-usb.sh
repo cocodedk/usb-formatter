@@ -122,7 +122,11 @@ for t in "${need[@]}"; do
 done
 if [[ ${#missing[@]} -gt 0 ]]; then
     msg="missing tools: ${missing[*]}"
-    [[ $DRY_RUN -eq 1 ]] && echo "warning: $msg (would fail at run time)" >&2 || die "$msg"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        echo "warning: $msg (would fail at run time)" >&2
+    else
+        die "$msg"
+    fi
 fi
 
 echo
@@ -171,7 +175,12 @@ for p in $(lsblk -ln -o NAME "$DEV" | tail -n +2); do
         unmount_part "$part" || echo "  warning: could not unmount $part" >&2
     fi
 done
-[[ $DRY_RUN -eq 1 ]] || { command -v udevadm >/dev/null && udevadm settle 2>/dev/null || true; sleep 0.5; }
+if [[ $DRY_RUN -eq 0 ]]; then
+    if command -v udevadm >/dev/null; then
+        udevadm settle 2>/dev/null || true
+    fi
+    sleep 0.5
+fi
 
 # Verify nothing is still mounted before we wipe.
 if [[ $DRY_RUN -eq 0 ]]; then
