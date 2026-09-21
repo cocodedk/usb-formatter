@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cocodedk.github.io/usb-formatter/sitemap.xml
+Sitemap: https://usb.cocode.dk/sitemap.xml

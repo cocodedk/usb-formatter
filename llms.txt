@@ -11,8 +11,8 @@ The tool refuses any non-removable device, refuses if a system mountpoint or act
 
 ## Docs
 
-- [Website (English)](https://cocodedk.github.io/usb-formatter/)
-- [Website (Persian)](https://cocodedk.github.io/usb-formatter/fa/)
+- [Website (English)](https://usb.cocode.dk/)
+- [Website (Persian)](https://usb.cocode.dk/fa/)
 - [CONTRIBUTING](https://github.com/cocodedk/usb-formatter/blob/main/CONTRIBUTING.md): Local setup, hooks, commit conventions
 - [SECURITY](https://github.com/cocodedk/usb-formatter/blob/main/SECURITY.md): Vulnerability reporting
 

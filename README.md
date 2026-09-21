@@ -4,8 +4,8 @@ A Linux Bash utility that wipes and reformats a USB stick for Windows (NTFS, def
 
 ## Website
 
-- [English](https://cocodedk.github.io/usb-formatter/)
-- [فارسی (Persian)](https://cocodedk.github.io/usb-formatter/fa/)
+- [English](https://usb.cocode.dk/)
+- [فارسی (Persian)](https://usb.cocode.dk/fa/)
 
 ## Features
 
