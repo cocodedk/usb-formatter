@@ -42,31 +42,10 @@ a { color: var(--hazard-2); text-decoration: underline; text-underline-offset: 2
 a:hover { color: var(--hazard); }
 :focus-visible { outline: 2px solid var(--hazard); outline-offset: 2px; }
 
-/* ---------- shell + topbar ---------- */
+/* ---------- shell ---------- */
 .shell { max-width: var(--max); margin: 0 auto; padding: 1.25rem var(--gutter) 3rem; }
-.topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 0.75rem; padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--paper-2); flex-wrap: wrap;
-}
-.brand {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
-    color: var(--ink-0); text-decoration: none;
-}
-.brand svg { width: 22px; height: 22px; flex: 0 0 auto; }
-.brand .pill {
-    display: inline-block; margin-left: 0.4rem; padding: 1px 6px;
-    font-size: 0.7rem; font-weight: 500; border: 1px solid var(--paper-2);
-    background: var(--paper-1); color: var(--ash); border-radius: 2px;
-}
-.lang-switch {
-    font-family: var(--mono); font-size: 0.85rem; color: var(--ink-0);
-    text-decoration: none; padding: 0.5rem 0.75rem; min-height: 44px;
-    display: inline-flex; align-items: center;
-    border: 1px solid var(--ink-0); background: var(--paper-0);
-}
-.lang-switch:hover { background: var(--ink-0); color: var(--paper-0); }
+/* The cocode.dk frame lines up with this column; keep the gutters in step. */
+cocode-head, cocode-foot { --cocode-max: var(--max); --cocode-gutter: var(--gutter); }
 
 /* ---------- header ---------- */
 header.intro { padding: 2rem 0 1.25rem; }
@@ -167,8 +146,6 @@ footer.foot a:hover { color: var(--hazard); }
 
 /* ---------- RTL (Persian) ---------- */
 [dir="rtl"] body { font-family: var(--rtl-sans); }
-[dir="rtl"] .brand,
-[dir="rtl"] .lang-switch,
 [dir="rtl"] section > h2,
 [dir="rtl"] .steps > li::before,
 [dir="rtl"] dl.guards dt,
@@ -177,7 +154,6 @@ footer.foot a:hover { color: var(--hazard); }
 [dir="rtl"] footer.foot { font-family: var(--mono); }
 [dir="rtl"] header.intro h1 { font-family: var(--mono); }
 [dir="rtl"] header.intro .lede { font-family: var(--rtl-sans); }
-[dir="rtl"] .brand .pill { margin-left: 0; margin-right: 0.4rem; }
 [dir="rtl"] pre { border-left: 0; border-right: 4px solid var(--hazard); direction: ltr; text-align: left; }
 [dir="rtl"] .steps > li { padding-left: 0; padding-right: 2.25rem; }
 [dir="rtl"] .steps > li::before { left: auto; right: 0; }
